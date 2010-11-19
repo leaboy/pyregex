@@ -11,6 +11,7 @@
 from PyQt4 import QtCore, QtGui
 
 from RegularUI import Ui_MainForm
+from RegularUI import Ui_Dialog
 
 import resource_rc
 
@@ -29,8 +30,8 @@ class RegularUI(QtGui.QWidget):
     def CreateQCMenu (self):
         # qc menu
         self.QCMenu = QtGui.QMenu(self)
-        self.NewAction = QtGui.QAction(u"添加", self, triggered=self.NewRegular, shortcut="Ctrl+N")
-        self.saveAction = QtGui.QAction(u"保存当前", self, triggered=self.SaveRegular, shortcut="Ctrl+S")
+        self.NewAction = QtGui.QAction(u"添加", self, triggered=self.OpenDialog, shortcut="Ctrl+N")
+        self.saveAction = QtGui.QAction(u"保存当前", self, triggered=self.OpenDialog, shortcut="Ctrl+S")
         self.aboutAction = QtGui.QAction(u"关于", self, triggered=self.AboutDialog)
 
         self.QCMenu.addAction(self.NewAction)
@@ -50,6 +51,8 @@ class RegularUI(QtGui.QWidget):
                 receiver = (lambda v: lambda: self.UseRegular(v))(regStr)
                 self.QCMenu.addAction(QtGui.QAction(regName, self, triggered=receiver))
 
+        DataFile.close()
+
         self.QCMenu.addSeparator()
         self.QCMenu.addAction(self.aboutAction)
 
@@ -58,18 +61,21 @@ class RegularUI(QtGui.QWidget):
     def UseRegular (self, val):
         self.ui.TextCode.setPlainText(val)
 
-    def NewRegular (self):
-        self.openDialog()
+    def SaveRegular (self, regName, regCode):
+        DataFile = QtCore.QFile(":/data/data.idx")
+        if (DataFile.open(QtCore.QIODevice.Append)):
+            DataText = QtCore.QTextStream(DataFile)
+            DataText<<u"\n%s%s%s" % (regName, RegSpliter, regCode)
 
-    def SaveRegular (self):
-        self.openDialog('aaa')
+        DataFile.close()
 
-    def openDialog(self, v=None):
-        dialog = DetailsDialog("Enter Customer Details", self)
+    def OpenDialog(self):
+        val = unicode(self.ui.TextCode.toPlainText().toUtf8(),'utf8', 'ignore')
+        DialogTitle = (val and [u"保存正则表达式"] or [u"添加正则表达式"])[0]
+        Dialog = ShowDialogUI(DialogTitle, val, self)
 
-        if dialog.exec_() == QtGui.QDialog.Accepted:
-            self.createLetter(dialog.senderName(), dialog.senderAddress(),
-                    dialog.orderItems(), dialog.sendOffers())
+        if Dialog.exec_() == QtGui.QDialog.Accepted:
+            self.SaveRegular(Dialog.senderName(), Dialog.senderCodes())
 
     def AboutDialog (self):
         QtGui.QMessageBox.about(self, "About PyRegEx Tester",
@@ -163,81 +169,37 @@ class RegularUI(QtGui.QWidget):
         # replace
         self.connect(self.ui.TextReplacer, QtCore.SIGNAL("textChanged(const QString)"), self.DoMatch)
 
-class DetailsDialog(QtGui.QDialog):
-    def __init__(self, title, parent):
-        super(DetailsDialog, self).__init__(parent)
 
-        self.items = ("T-shirt", "Badge", "Reference book", "Coffee cup")
+class ShowDialogUI(QtGui.QDialog):
+    def __init__(self, title, val, parent):
+        super(ShowDialogUI, self).__init__(parent)
 
-        nameLabel = QtGui.QLabel("Name:")
-        addressLabel = QtGui.QLabel("Address:")
-        addressLabel.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
-
-        self.nameEdit = QtGui.QLineEdit()
-        self.addressEdit = QtGui.QTextEdit()
-        self.offersCheckBox = QtGui.QCheckBox("Send information about "
-                "products and special offers:")
-
-        self.setupItemsTable()
-
-        buttonBox = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel)
-
-        buttonBox.accepted.connect(self.verify)
-        buttonBox.rejected.connect(self.reject)
-
-        mainLayout = QtGui.QGridLayout()
-        mainLayout.addWidget(nameLabel, 0, 0)
-        mainLayout.addWidget(self.nameEdit, 0, 1)
-        mainLayout.addWidget(addressLabel, 1, 0)
-        mainLayout.addWidget(self.addressEdit, 1, 1)
-        mainLayout.addWidget(self.itemsTable, 0, 2, 2, 1)
-        mainLayout.addWidget(self.offersCheckBox, 2, 1, 1, 2)
-        mainLayout.addWidget(buttonBox, 3, 0, 1, 3)
-        self.setLayout(mainLayout)
+        self.ui = Ui_Dialog()
+        self.ui.setupUi(self)
 
         self.setWindowTitle(title)
+        self.ui.RegCode.setPlainText(val)
 
-    def setupItemsTable(self):
-        self.itemsTable = QtGui.QTableWidget(len(self.items), 2)
-
-        for row, item in enumerate(self.items):
-            name = QtGui.QTableWidgetItem(item)
-            name.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable)
-            self.itemsTable.setItem(row, 0, name)
-            quantity = QtGui.QTableWidgetItem('1')
-            self.itemsTable.setItem(row, 1, quantity)
-
-    def orderItems(self):
-        orderList = []
-
-        for row in range(len(self.items)):
-            text = self.itemsTable.item(row, 0).text()
-            quantity = int(self.itemsTable.item(row, 1).data(QtCore.Qt.DisplayRole))
-            orderList.append((text, max(0, quantity)))
-
-        return orderList
+        self.connect(self.ui.BtnSave, QtCore.SIGNAL("clicked()"), self.verify)
+        self.connect(self.ui.BtnCancel, QtCore.SIGNAL("clicked()"), self.reject)
 
     def senderName(self):
-        return self.nameEdit.text()
+        return self.ui.RegName.text()
 
-    def senderAddress(self):
-        return self.addressEdit.toPlainText()
-
-    def sendOffers(self):
-        return self.offersCheckBox.isChecked()
+    def senderCodes(self):
+        return self.ui.RegCode.toPlainText()
 
     def verify(self):
-        if self.nameEdit.text() and self.addressEdit.toPlainText():
+        RegName = self.ui.RegName.text()
+        RegCode = self.ui.RegCode.toPlainText()
+        if RegName and RegCode:
             self.accept()
             return
 
-        answer = QtGui.QMessageBox.warning(self, "Incomplete Form",
-                "The form does not contain all the necessary information.\n"
-                "Do you want to discard it?",
-                QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-
-        if answer == QtGui.QMessageBox.Yes:
-            self.reject()
+        if not RegName:
+            self.ui.RegName.setFocus()
+        elif not RegCode:
+            self.ui.RegCode.setFocus()
 
 
 if __name__ == "__main__":
