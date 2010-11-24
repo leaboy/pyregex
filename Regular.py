@@ -16,6 +16,7 @@ from RegularUI import Ui_Dialog
 import resource_rc
 
 RegSpliter = "#[##]#"
+UserDBFile = "data.idx"
 
 class RegularUI(QtGui.QWidget):
     def __init__(self, parent=None):
@@ -32,26 +33,45 @@ class RegularUI(QtGui.QWidget):
         self.QCMenu = QtGui.QMenu(self)
         self.NewAction = QtGui.QAction(u"添加", self, triggered=self.OpenDialog, shortcut="Ctrl+N")
         self.saveAction = QtGui.QAction(u"保存当前", self, triggered=self.OpenDialog, shortcut="Ctrl+S")
+        self.SelectAction = QtGui.QAction(u"选择", self)
         self.aboutAction = QtGui.QAction(u"关于", self, triggered=self.AboutDialog)
 
         self.QCMenu.addAction(self.NewAction)
         self.QCMenu.addAction(self.saveAction)
         self.QCMenu.addSeparator()
 
+        self.QCSubMenu = self.QCMenu.addMenu(u"选择")
+
         # get define regular
-        InitRegular = []
-        DataFile = QtCore.QFile(":/data/data.idx")
+        copyDataText = []
+        userData = QtCore.QFile.exists(UserDBFile)
+        # user data
+        newDataFile = QtCore.QFile(UserDBFile)
+
+        if userData:
+            DataFile = newDataFile
+        else:
+            DataFile = QtCore.QFile(":/data/data.idx")
+
         if (DataFile.open(QtCore.QIODevice.ReadOnly)):
             DataText = QtCore.QTextStream(DataFile)
             while not DataText.atEnd():
                 line = DataText.readLine()
                 line = unicode(line.toUtf8(),'utf8', 'ignore')
-                if line.find(RegSpliter) == -1: next
+                if line.find(RegSpliter) == -1: continue
                 [regName, regStr] = line.split(RegSpliter)
                 receiver = (lambda v: lambda: self.UseRegular(v))(regStr)
-                self.QCMenu.addAction(QtGui.QAction(regName, self, triggered=receiver))
+                self.QCSubMenu.addAction(QtGui.QAction(regName, self, triggered=receiver))
+                # copy init data
+                copyDataText.append(u"%s" % line)
 
         DataFile.close()
+
+        if (newDataFile.open(QtCore.QIODevice.WriteOnly)):
+            newDataText = QtCore.QTextStream(newDataFile)
+            newDataText<<"\n".join(copyDataText)
+
+        newDataFile.close()
 
         self.QCMenu.addSeparator()
         self.QCMenu.addAction(self.aboutAction)
@@ -62,12 +82,14 @@ class RegularUI(QtGui.QWidget):
         self.ui.TextCode.setPlainText(val)
 
     def SaveRegular (self, regName, regCode):
-        DataFile = QtCore.QFile(":/data/data.idx")
+        DataFile = QtCore.QFile(UserDBFile)
         if (DataFile.open(QtCore.QIODevice.Append)):
             DataText = QtCore.QTextStream(DataFile)
             DataText<<u"\n%s%s%s" % (regName, RegSpliter, regCode)
 
         DataFile.close()
+        receiver = (lambda v: lambda: self.UseRegular(v))(regCode)
+        self.QCSubMenu.addAction(QtGui.QAction(regName, self, triggered=receiver))
 
     def OpenDialog(self):
         val = unicode(self.ui.TextCode.toPlainText().toUtf8(),'utf8', 'ignore')

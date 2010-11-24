@@ -19,7 +19,7 @@ class Ui_MainForm(object):
         sizePolicy.setHeightForWidth(MainForm.sizePolicy().hasHeightForWidth())
         MainForm.setSizePolicy(sizePolicy)
         # set font
-        self.setFont(MainForm)
+        setFont(MainForm)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/icon/icon_32x32.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainForm.setWindowIcon(icon)
@@ -132,16 +132,16 @@ class Ui_MainForm(object):
         self.verticalLayout.addLayout(self.RegResualt)
 
         # set font
-        self.setFont(self.SetLetter)
-        self.setFont(self.SetGlobal)
-        self.setFont(self.SetMultiline)
-        self.setFont(self.QCButton)
-        self.setFont(self.SetReplace)
-        self.setFont(self.TextReplacer)
+        setFont(self.SetLetter)
+        setFont(self.SetGlobal)
+        setFont(self.SetMultiline)
+        setFont(self.QCButton)
+        setFont(self.SetReplace)
+        setFont(self.TextReplacer)
 
-        self.setFont(self.TextCode)
-        self.setFont(self.TextMatch)
-        self.setFont(self.TextResualt)
+        setFont(self.TextCode)
+        setFont(self.TextMatch)
+        setFont(self.TextResualt)
 
         self.retranslateUi(MainForm)
         QtCore.QMetaObject.connectSlotsByName(MainForm)
@@ -157,10 +157,6 @@ class Ui_MainForm(object):
         self.TextGroupBox.setTitle(QtGui.QApplication.translate("MainForm", "查找文本", None, QtGui.QApplication.UnicodeUTF8))
         self.ResualtGroupBox.setTitle(QtGui.QApplication.translate("MainForm", "结果", None, QtGui.QApplication.UnicodeUTF8))
 
-    def setFont (self, ele):
-        font = QtGui.QFont()
-        font.setFamily(u"Courier New,微软雅黑")
-        ele.setFont(font)
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -233,6 +229,12 @@ class Ui_Dialog(object):
         self.horizontalLayout.addWidget(self.BtnCancel)
         self.verticalLayout.addLayout(self.horizontalLayout)
 
+        # set font
+        setFont(self.label)
+        setFont(self.label_2)
+        setFont(self.RegName)
+        setFont(self.RegCode)
+
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
@@ -242,3 +244,9 @@ class Ui_Dialog(object):
         self.label_2.setText(QtGui.QApplication.translate("Dialog", "表达式", None, QtGui.QApplication.UnicodeUTF8))
         self.BtnSave.setText(QtGui.QApplication.translate("Dialog", "确定", None, QtGui.QApplication.UnicodeUTF8))
         self.BtnCancel.setText(QtGui.QApplication.translate("Dialog", "取消", None, QtGui.QApplication.UnicodeUTF8))
+
+
+def setFont (ele):
+    font = QtGui.QFont()
+    font.setFamily(u"Courier New,微软雅黑")
+    ele.setFont(font)
