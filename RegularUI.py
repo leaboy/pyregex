@@ -103,6 +103,7 @@ class Ui_MainForm(object):
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.TextMatch = QtGui.QPlainTextEdit(self.TextGroupBox)
         self.TextMatch.setEnabled(True)
+        self.TextMatch.setTabStopWidth(28)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Ignored)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)

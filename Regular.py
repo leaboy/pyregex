@@ -156,7 +156,10 @@ class RegularUI(QtGui.QWidget):
             ['<', '&lt;'],
             ['>', '&gt;'],
             ['"', '&quot;'],
-            ['\n', '<br>'],
+            [' ', '&nbsp;'],
+            ['\t', '&nbsp;&nbsp;&nbsp;&nbsp;'],
+            ['\r', ' <br>'],
+            ['\n', ' <br>'],
         ]
 
         def formatHtml (s):
