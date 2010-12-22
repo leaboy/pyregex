@@ -153,7 +153,7 @@ class Ui_MainForm(object):
         self.SetLetter.setText(QtGui.QApplication.translate("MainForm", "大小写注意", None, QtGui.QApplication.UnicodeUTF8))
         self.SetGlobal.setText(QtGui.QApplication.translate("MainForm", "全局", None, QtGui.QApplication.UnicodeUTF8))
         self.SetMultiline.setText(QtGui.QApplication.translate("MainForm", "多行", None, QtGui.QApplication.UnicodeUTF8))
-        self.QCButton.setText(QtGui.QApplication.translate("MainForm", "快速选择", None, QtGui.QApplication.UnicodeUTF8))
+        self.QCButton.setText(QtGui.QApplication.translate("MainForm", "用户选项", None, QtGui.QApplication.UnicodeUTF8))
         self.SetReplace.setText(QtGui.QApplication.translate("MainForm", "替换", None, QtGui.QApplication.UnicodeUTF8))
         self.TextGroupBox.setTitle(QtGui.QApplication.translate("MainForm", "查找文本", None, QtGui.QApplication.UnicodeUTF8))
         self.ResualtGroupBox.setTitle(QtGui.QApplication.translate("MainForm", "结果", None, QtGui.QApplication.UnicodeUTF8))
