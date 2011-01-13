@@ -103,7 +103,8 @@ class RegularUI(QtGui.QWidget):
         QtGui.QMessageBox.about(self, "About PyRegEx Tester",
                 "<p>The <b>PyRegEx Tester</b> helps you to " \
                 "easily test the regular expression.<br/>" \
-                "-- So, Try it. --</p>")
+                "-- So, Try it. --</p>" \
+                "<p>Program URL: <a href='http://pyregex.googlecode.com'>http://pyregex.googlecode.com</a></p>")
 
     def DoMatch (self):
         import re
